@@ -95,9 +95,25 @@ function building(x,z,w,d,h,color){
  box(x,h/2,z-d/2-.08,w,.3,.2,mat(0xe8d8b8));
 }
 
-for(let z=-42;z<=42;z+=14){
- building(-12,z,7,9,5+(Math.abs(z)%3),0xe8c59b);
- building(12,z,8,10,6+(Math.abs(z)%4),0xd6d9cd);
+// QUARTIER IVOIRIAN LIFE - VERSION AMELIOREE
+
+for(let z=-42;z<=42;z+=12){
+
+  // Maisons du quartier populaire
+  building(-12,z,7,9,5,0xf0b36b);
+  building(12,z,8,10,6,0xe8d6b8);
+
+  // Petites boutiques
+  if(z%24===0){
+    building(-21,z+3,6,6,3.5,0xe89a42);
+    building(21,z-3,6,6,4,0x38a96b);
+  }
+
+  // Immeubles au loin
+  if(z<=-24){
+    building(-27,z,9,10,12,0xbacbd3);
+    building(27,z,9,10,14,0xd5d9df);
+  }
 }
 
 function palm(x,z){
