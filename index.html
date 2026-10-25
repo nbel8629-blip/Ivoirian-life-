@@ -1,1 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#087b43">
+<title>Ivoirian Life 🇨🇮</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#9bd5e8}
+canvas{display:block}
+#hud{position:fixed;top:12px;left:10px;right:10px;z-index:2;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.panel{background:#ffffffed;border-radius:16px;padding:10px 13px;font-weight:bold;box-shadow:0 3px 12px #0002;color:#17452e}
+#money{color:#07853e}
+#tip{position:fixed;top:70px;left:10px;right:10px;text-align:center;background:#ffffffd9;border-radius:12px;padding:9px;font-size:13px;color:#26382e;z-index:2}
+#controls{position:fixed;bottom:22px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:end;z-index:3}
+#joy{width:112px;height:112px;border-radius:50%;background:#ffffff55;border:3px solid #ffffffbb;position:relative;touch-action:none}
+#stick{width:46px;height:46px;border-radius:50%;background:#087b43;border:3px solid white;position:absolute;left:30px;top:30px}
+.buttons{display:grid;grid-template-columns:repeat(2,60px);gap:8px}
+button{border:0;border-radius:18px;background:#087b43;color:white;font-weight:bold;font-size:14px;padding:14px 8px;box-shadow:0 4px 0 #04532d;touch-action:manipulation}
+#message{position:fixed;bottom:155px;left:12%;right:12%;text-align:center;color:#fff;background:#153c2be8;padding:10px;border-radius:12px;z-index:2;font-size:13px}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:#e4f5e9;color:#087b43;z-index:10;font-weight:bold;padding:25px}
+</style>
+</head>
+<body>
+<div id="loading">🇨🇮 IVOIRIAN LIFE<br><br>Chargement de la ville...</div>
 
+<div id="hud">
+  <div class="panel">🇨🇮 IVOIRIAN LIFE</div>
+  <div class="panel" id="money">💰 5 000 F</div>
+</div>
+<div id="tip">📍 Abidjan • Quartier de départ</div>
+<div id="message">Bienvenue ! Explore ton nouveau quartier.</div>
+
+<div id="controls">
+  <div id="joy"><div id="stick"></div></div>
+  <div class="buttons">
+    <button id="run">🏃 Courir</button>
+    <button id="work">💼 Travailler</button>
+    <button id="look">🏙️ Ville</button>
+    <button id="help">❔ Aide</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(() => {
+const loading=document.getElementById('loading');
+const msg=document.getElementById('message');
+if(!window.THREE){
+ loading.innerHTML="Connexion nécessaire pour charger la 3D.<br><br>Vérifie Internet puis recharge la page.";
+ return;
+}
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9bd5e8);
+scene.fog=new THREE.Fog(0x9bd5e8,35,100);
+
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,180);
+const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=false;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x65734c,2));
+const sun=new THREE.DirectionalLight(0xffffff,2);
+sun.position.set(-20,35,15);
+scene.add(sun);
+
+function mat(color){return new THREE.MeshLambertMaterial({color});}
+const grass=mat(0x69a85a),asphalt=mat(0x454b50),sidewalk=mat(0xbcbcaf);
+const white=mat(0xffffff),green=mat(0x087b43),orange=mat(0xff8b24);
+const dark=mat(0x283747),skin=mat(0x874a2b),windowMat=mat(0x9edce8);
+
+function box(x,y,z,w,h,d,m){
+ const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+ o.position.set(x,y,z);scene.add(o);return o;
+}
+
+box(0,-.3,0,200,.5,200,grass);
+box(0,-.02,0,9,.12,180,asphalt);
+box(-6,-.02,0,2,.15,180,sidewalk);
+box(6,-.02,0,2,.15,180,sidewalk);
+for(let z=-85;z<90;z+=8)box(0,.05,z, .13,.02,3,white);
+
+function building(x,z,w,d,h,color){
+ box(x,h/2,z,w,h,d,mat(color));
+ box(x,h+.12,z,w+.25,.25,d+.25,mat(0x594a42));
+ for(let yy=1.2;yy<h-.4;yy+=1.8){
+  for(let xx=-w/2+.6;xx<w/2-.3;xx+=1.5){
+   box(x+xx,yy,z-d/2-.012,.65,.8,.035,windowMat);
+  }
+ }
+ box(x,h/2,z-d/2-.08,w,.3,.2,mat(0xe8d8b8));
+}
+
+for(let z=-42;z<=42;z+=14){
+ building(-12,z,7,9,5+(Math.abs(z)%3),0xe8c59b);
+ building(12,z,8,10,6+(Math.abs(z)%4),0xd6d9cd);
+}
+
+function palm(x,z){
+ const trunk= new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,3.5,5),mat(0x795032));
+ trunk.position.set(x,1.75,z);scene.add(trunk);
+ for(let i=0;i<6;i++){
+  const leaf=new THREE.Mesh(new THREE.BoxGeometry(.18,.12,2.7),mat(0x187c43));
+  leaf.position.set(x,3.5,z);leaf.rotation.y=i*Math.PI/3;
+  leaf.rotation.x=-.35;scene.add(leaf);
+ }
+}
+for(let z=-35;z<=35;z+=14){palm(-7.8,z);palm(7.8,z+5)}
+
+const player=new THREE.Group();
+const body=new THREE.Mesh(new THREE.BoxGeometry(.7,1,.4),green);
+body.position.y=1.15;player.add(body);
+const head=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),skin);
+head.position.y=1.85;player.add(head);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.29,8,5),dark);
+hair.position.y=2.02;player.add(hair);
+const leg1=new THREE.Mesh(new THREE.BoxGeometry(.23,.65,.25),dark);
+const leg2=leg1.clone();leg1.position.set(-.2,.45,0);leg2.position.set(.2,.45,0);
+player.add(leg1,leg2);
+scene.add(player);
+player.position.set(0,0,8);
+
+let money=5000,run=false,moveX=0,moveY=0;
+let cameraMode=0;
+const joy=document.getElementById('joy'),stick=document.getElementById('stick');
+let active=false;
+function joystick(e){
+ const r=joy.getBoundingClientRect();
+ const t=e.touches?e.touches[0]:e;
+ let dx=t.clientX-(r.left+r.width/2),dy=t.clientY-(r.top+r.height/2);
+ const max=32,len=Math.hypot(dx,dy)||1;
+ if(len>max){dx=dx/len*max;dy=dy/len*max}
+ stick.style.left=(33+dx)+'px';stick.style.top=(33+dy)+'px';
+ moveX=dx/max;moveY=dy/max;
+}
+joy.addEventListener('pointerdown',e=>{active=true;joy.setPointerCapture(e.pointerId);joystick(e)});
+joy.addEventListener('pointermove',e=>{if(active)joystick(e)});
+function release(){active=false;moveX=moveY=0;stick.style.left='30px';stick.style.top='30px'}
+joy.addEventListener('pointerup',release);
+joy.addEventListener('pointercancel',release);
+
+document.getElementById('run').onclick=()=>{
+ run=!run;msg.textContent=run?'🏃 Course activée !':'🚶 Marche normale.';
+};
+document.getElementById('work').onclick=()=>{
+ money+=250;
+ document.getElementById('money').textContent='💰 '+money.toLocaleString('fr-FR')+' F';
+ msg.textContent='💼 Petit travail effectué : +250 F virtuels !';
+};
+document.getElementById('look').onclick=()=>{
+ cameraMode=(cameraMode+1)%2;
+ msg.textContent=cameraMode?'🏙️ Vue rapprochée':'🌍 Vue large';
+};
+document.getElementById('help').onclick=()=>{
+ msg.textContent='Utilise le joystick pour te déplacer. Le bouton Travail simule un petit emploi.';
+};
+let last=0;
+function animate(time){
+ requestAnimationFrame(animate);
+ const dt=Math.min((time-last)/1000||0,.05);last=time;
+ if(Math.abs(moveX)+Math.abs(moveY)>.05){
+  const speed=(run?7:3.5)*dt;
+  player.position.x+=moveX*speed;
+  player.position.z+=moveY*speed;
+  player.position.x=Math.max(-5,Math.min(5,player.position.x));
+  player.position.z=Math.max(-85,Math.min(85,player.position.z));
+  player.rotation.y=Math.atan2(moveX,moveY);
+ }
+ const distance=cameraMode?7:10;
+ const target=new THREE.Vector3(
+ player.position.x,player.position.y+1.2,player.position.z
+ );
+ const desired=new THREE.Vector3(
+ player.position.x,player.position.y+distance*.65,player.position.z+distance
+ );
+ camera.position.lerp(desired,.09);
+ camera.lookAt(target);
+ renderer.render(scene,camera);
+}
+addEventListener('resize',()=>{
+ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+loading.remove();
+requestAnimationFrame(animate);
+})();
+</script>
+</body>
+  </html>
