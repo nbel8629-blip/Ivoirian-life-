@@ -216,13 +216,19 @@ function animate(time){
  requestAnimationFrame(animate);
  const dt=Math.min((time-last)/1000||0,.05);last=time;
  if(Math.abs(moveX)+Math.abs(moveY)>.05){
-  const speed=(run?7:3.5)*dt;
-  player.position.x+=moveX*speed;
-  player.position.z+=moveY*speed;
-  player.position.x=Math.max(-5,Math.min(5,player.position.x));
-  player.position.z=Math.max(-85,Math.min(85,player.position.z));
+  const speed=(run?2.7:1.5)*dt;
+
+  // Déplacement libre sur la route et les trottoirs
+  const nextX=player.position.x+moveX*speed;
+  const nextZ=player.position.z+moveY*speed;
+
+  // Limites générales de la zone accessible
+  player.position.x=Math.max(-38,Math.min(38,nextX));
+  player.position.z=Math.max(-85,Math.min(85,nextZ));
+
+  // Orientation du personnage
   player.rotation.y=Math.atan2(moveX,moveY);
- }
+  }
  const distance=cameraMode?7:10;
  const target=new THREE.Vector3(
  player.position.x,player.position.y+1.2,player.position.z
