@@ -110,7 +110,44 @@ function palm(x,z){
  }
 }
 for(let z=-35;z<=35;z+=14){palm(-7.8,z);palm(7.8,z+5)}
+  // ===== EXTENSION DE LA VILLE IVOIRIENNE =====
 
+// Nouvelle route transversale
+box(-18,-0.01,0,40,.13,7,asphalt);
+
+// Trottoirs de la nouvelle rue
+box(-18,.02,-4.5,40,.16,1.8,sidewalk);
+box(-18,.02,4.5,40,.16,1.8,sidewalk);
+
+// Maisons colorées
+building(-12,12,6,7,4,0xf0b36b);
+building(-20,14,7,8,5,0xe8d6b8);
+building(12,13,7,8,5,0xf2c5a0);
+building(21,15,8,9,6,0xd8d8cb);
+
+// Immeubles modernes au loin
+building(-15,-22,9,10,12,0xbacbd3);
+building(0,-27,10,10,16,0xd5d9df);
+building(15,-24,9,11,13,0xb7d4c2);
+
+// Maquis et boutiques
+building(-12,24,5,5,3,0xe8a04b);
+building(12,25,5,5,3,0x39a96b);
+
+// Enseignes des commerces
+box(-12,3.1,21.35,3.8,.65,.12,orange);
+box(12,3.1,22.35,3.8,.65,.12,green);
+
+// Petites places
+box(0,.01,16,9,.12,6,mat(0xc5b99d));
+
+// Palmiers supplémentaires
+palm(-23,8);
+palm(23,8);
+palm(-23,25);
+palm(23,25);
+palm(-7,-20);
+palm(7,-20);
 const player=new THREE.Group();
 const body=new THREE.Mesh(new THREE.BoxGeometry(.7,1,.4),green);
 body.position.y=1.15;player.add(body);
